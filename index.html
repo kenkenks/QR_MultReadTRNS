@@ -226,6 +226,19 @@
         navigator.vibrate(100);
       }
     }
+  
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxzLhWNEELA9Og9SSop7XQk3oExDpljb7LiOj3UUimx/dev";
+
+    fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify({
+        member_id: parsed.member_id,
+        location_id: currentLocationId,
+        source: "github_pages_qr_test"
+      })
+    });
+
   </script>
 </body>
 </html>
