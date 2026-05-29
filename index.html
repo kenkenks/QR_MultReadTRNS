@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>道場QR読み取り実験</title>
+  <title>道場QR読み取り実験 T0529_1</title>
 
   <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -56,7 +56,7 @@
 </head>
 
 <body>
-  <h1>道場QR読み取り実験 T0529_1</h1>
+  <h1>道場QR読み取り実験 T0529_2</h1>
 
   <div class="card">
     <div>保持中の道場ID</div>
@@ -82,6 +82,8 @@
   </div>
 
   <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz_Movz5VBZkf8qHdMkR7kkQRkLkYJAbahN5OPStFT8YXnhCuIGJBCdqjy2PwgWaorUfA/exec";
+
     let html5QrCode = null;
     let scanning = false;
 
@@ -126,7 +128,6 @@
     function onScanSuccess(decodedText) {
       const now = Date.now();
 
-      // 同じQRの連続検出を2秒抑止
       if (decodedText === lastText && now - lastReadTime < 2000) {
         return;
       }
@@ -150,6 +151,7 @@
       if (parsed.member_id) {
         addLog("会員QR読取: " + parsed.member_id + " / location=" + (currentLocationId || "未設定"));
         beep();
+        sendToGas(parsed.member_id);
         return;
       }
 
@@ -167,7 +169,6 @@
         member_id: ""
       };
 
-      // URL形式: https://example.com?member_id=M001
       try {
         const url = new URL(text);
         result.location_id = url.searchParams.get("location_id") || "";
@@ -177,17 +178,43 @@
         // URLでない場合は下へ
       }
 
-      // 文字列形式: location_id=LOC001
       if (text.startsWith("location_id=")) {
         result.location_id = text.replace("location_id=", "").trim();
       }
 
-      // 文字列形式: member_id=M001
       if (text.startsWith("member_id=")) {
         result.member_id = text.replace("member_id=", "").trim();
       }
 
       return result;
+    }
+
+    function sendToGas(memberId) {
+      if (!currentLocationId) {
+        addLog("送信スキップ: location_id未設定");
+        return;
+      }
+
+      const payload = {
+        member_id: memberId,
+        location_id: currentLocationId,
+        source: "github_pages_qr_test"
+      };
+
+      addLog("GAS送信: " + JSON.stringify(payload));
+
+      fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        addLog("GAS送信要求完了");
+      }).catch(err => {
+        addLog("GAS送信エラー: " + err);
+      });
     }
 
     function addLog(message) {
@@ -226,19 +253,6 @@
         navigator.vibrate(100);
       }
     }
-  
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbz_Movz5VBZkf8qHdMkR7kkQRkLkYJAbahN5OPStFT8YXnhCuIGJBCdqjy2PwgWaorUfA/exec";
-
-    fetch(GAS_URL, {
-      method: "POST",
-      mode: "no-cors",
-      body: JSON.stringify({
-        member_id: parsed.member_id,
-        location_id: currentLocationId,
-        source: "github_pages_qr_test"
-      })
-    });
-
   </script>
 </body>
 </html>
