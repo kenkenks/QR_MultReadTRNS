@@ -59,6 +59,11 @@
   <h1>道場QR読み取り実験 T0529_2</h1>
 
   <div class="card">
+    <div>保持中の道場ID</div>
+    <div id="locationId" class="warn">未設定</div>
+  </div>
+
+  <div class="card">
     <div>保持中の先生ID</div>
     <div id="teacherId" class="warn">未設定</div>
   </div>
@@ -81,6 +86,7 @@
     <ul id="memberCandidates"></ul>
   </div>
 
+ 
   <div class="card">
     <div>読み取りログ</div>
     <ul id="log"></ul>
@@ -96,6 +102,8 @@
     let currentTeacherId = "";
     let lastText = "";
     let lastReadTime = 0;    
+
+    let memberCandidates = [];
 
     function startScan() {
       if (scanning) return;
@@ -210,7 +218,6 @@
     }
 
     function sendToGas(memberId) {
-      let memberCandidates = [];
 
       if (!currentLocationId) {
         addLog("送信スキップ: location_id未設定");
