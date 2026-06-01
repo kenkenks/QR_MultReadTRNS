@@ -84,8 +84,8 @@
   <div class="card">
     <div>読み取り候補会員</div>
     <ul id="memberCandidates"></ul>
+    <button onclick="sendCandidatesToGas()">候補をまとめて送信</button>
   </div>
-
  
   <div class="card">
     <div>読み取りログ</div>
@@ -246,6 +246,46 @@
       });
     }
 
+    function sendCandidatesToGas() {
+      if (!currentTeacherId) {
+        addLog("送信スキップ: teacher_id未設定");
+        return;
+      }
+
+      if (!currentLocationId) {
+        addLog("送信スキップ: location_id未設定");
+        return;
+      }
+
+      if (memberCandidates.length === 0) {
+        addLog("送信スキップ: 会員候補なし");
+        return;
+      }
+
+      const payload = {
+        teacher_id: currentTeacherId,
+        location_id: currentLocationId,
+        member_ids: memberCandidates,
+        count: memberCandidates.length,
+        source: "github_pages_qr_batch_test"
+      };
+
+      addLog("GAS一括送信: " + JSON.stringify(payload));
+
+      fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        addLog("GAS一括送信要求完了");
+      }).catch(err => {
+        addLog("GAS一括送信エラー: " + err);
+      });
+    }
+    
     function addMemberCandidate(memberId) {
       if (memberCandidates.includes(memberId)) {
         addLog("候補追加スキップ: 重複 " + memberId);
