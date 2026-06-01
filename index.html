@@ -77,6 +77,11 @@
   </div>
 
   <div class="card">
+    <div>読み取り候補会員</div>
+    <ul id="memberCandidates"></ul>
+  </div>
+
+  <div class="card">
     <div>読み取りログ</div>
     <ul id="log"></ul>
   </div>
@@ -161,9 +166,9 @@
       if (parsed.member_id) {
         addLog("会員QR読取: " + parsed.member_id + " / location=" + (currentLocationId || "未設定"));
         beep();
-        sendToGas(parsed.member_id);
+        addMemberCandidate(parsed.member_id);
         return;
-      }
+      }      
 
       addLog("未分類QR: " + decodedText);
       beep();
@@ -205,6 +210,8 @@
     }
 
     function sendToGas(memberId) {
+      let memberCandidates = [];
+
       if (!currentLocationId) {
         addLog("送信スキップ: location_id未設定");
         return;
@@ -232,6 +239,27 @@
       });
     }
 
+    function addMemberCandidate(memberId) {
+      if (memberCandidates.includes(memberId)) {
+        addLog("候補追加スキップ: 重複 " + memberId);
+        return;
+      }
+
+      memberCandidates.push(memberId);
+      renderMemberCandidates();
+    }
+
+    function renderMemberCandidates() {
+      const ul = document.getElementById("memberCandidates");
+      ul.innerHTML = "";
+
+      memberCandidates.forEach(memberId => {
+        const li = document.createElement("li");
+        li.textContent = memberId;
+        ul.appendChild(li);
+      });
+    }
+
     function addLog(message) {
       const li = document.createElement("li");
       const time = new Date().toLocaleTimeString();
@@ -244,6 +272,9 @@
       document.getElementById("latest").textContent = "なし";
       lastText = "";
       lastReadTime = 0;
+
+      memberCandidates = [];
+      renderMemberCandidates();
     }
 
     function beep() {
