@@ -105,6 +105,12 @@
 
     let memberCandidates = [];
 
+    const memberNameMap = {
+      "M001": "山田太郎",
+      "M002": "川本花子",
+      "M003": "佐藤一郎"
+    };
+
     function startScan() {
       if (scanning) return;
 
@@ -302,7 +308,8 @@
 
       memberCandidates.forEach(memberId => {
         const li = document.createElement("li");
-        li.textContent = memberId;
+        const name = memberNameMap[memberId] || "氏名未登録";
+        li.textContent = memberId + "：" + name + " 様";
         ul.appendChild(li);
       });
     }
