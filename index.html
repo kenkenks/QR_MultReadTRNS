@@ -59,8 +59,8 @@
   <h1>道場QR読み取り実験 T0529_2</h1>
 
   <div class="card">
-    <div>保持中の道場ID</div>
-    <div id="locationId" class="warn">未設定</div>
+    <div>保持中の先生ID</div>
+    <div id="teacherId" class="warn">未設定</div>
   </div>
 
   <div class="card">
@@ -88,8 +88,9 @@
     let scanning = false;
 
     let currentLocationId = "";
+    let currentTeacherId = "";
     let lastText = "";
-    let lastReadTime = 0;
+    let lastReadTime = 0;    
 
     function startScan() {
       if (scanning) return;
@@ -148,6 +149,15 @@
         return;
       }
 
+      if (parsed.teacher_id) {
+        currentTeacherId = parsed.teacher_id;
+        document.getElementById("teacherId").textContent = currentTeacherId;
+        document.getElementById("teacherId").className = "ok";
+        addLog("先生QR読取: " + currentTeacherId);
+        beep();
+        return;
+      }
+
       if (parsed.member_id) {
         addLog("会員QR読取: " + parsed.member_id + " / location=" + (currentLocationId || "未設定"));
         beep();
@@ -166,16 +176,21 @@
     function parseQrText(text) {
       const result = {
         location_id: "",
+        teacher_id: "",
         member_id: ""
-      };
+      };  
 
       try {
         const url = new URL(text);
         result.location_id = url.searchParams.get("location_id") || "";
         result.member_id = url.searchParams.get("member_id") || "";
+        result.teacher_id = url.searchParams.get("teacher_id") || "";
         return result;
       } catch (e) {
         // URLでない場合は下へ
+        if (text.startsWith("teacher_id=")) {
+          result.teacher_id = text.replace("teacher_id=", "").trim();
+        }  
       }
 
       if (text.startsWith("location_id=")) {
