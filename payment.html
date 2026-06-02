@@ -454,19 +454,19 @@
 
       addLog("GAS一括送信予定: " + JSON.stringify(payload));
 
-      // 初版では画面動作確認を優先するため、実送信は次ステップで有効化する。
-      // fetch(GAS_URL, {
-      //   method: "POST",
-      //   mode: "no-cors",
-      //   headers: {
-      //     "Content-Type": "text/plain"
-      //   },
-      //   body: JSON.stringify(payload)
-      // }).then(() => {
-      //   addLog("GAS一括送信要求完了");
-      // }).catch(err => {
-      //   addLog("GAS一括送信エラー: " + err);
-      // });
+      初版では画面動作確認を優先するため、実送信は次ステップで有効化する。
+      fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        addLog("GAS一括送信要求完了");
+      }).catch(err => {
+        addLog("GAS一括送信エラー: " + err);
+      });
     }
 
     function resetScreen() {
