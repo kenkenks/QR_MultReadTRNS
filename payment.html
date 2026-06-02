@@ -527,13 +527,14 @@
     function loadMemberForPayment(memberId) {
       addLog("会員情報取得中: " + memberId);
 
-      if (typeof google === "undefined" || !google.script || !google.script.run) {
-        addLog("google.script.run が使えません。GAS Webアプリ経由で開いているか確認してください。");
-        return;
-      }
+      const url =
+        GAS_URL
+        + "&action=getMemberInfo"
+        + "&member_id=" + encodeURIComponent(memberId);
 
-      google.script.run
-        .withSuccessHandler(result => {
+      fetch(url)
+        .then(response => response.json())
+        .then(result => {
           addLog("GAS応答: " + JSON.stringify(result));
 
           if (!result || !result.success) {
@@ -551,10 +552,9 @@
           renderCurrentPayment();
           addLog("会員情報取得完了: " + result.memberName);
         })
-        .withFailureHandler(err => {
-          addLog("会員情報取得失敗: " + JSON.stringify(err));
-        })
-        .getMemberInfoForPayment(memberId);
+        .catch(err => {
+          addLog("会員情報取得失敗: " + err);
+        });
     }
 
 </script>
